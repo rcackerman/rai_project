@@ -99,3 +99,14 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+# Data
+.csv
+.xlsx
+.xls
+.tsv
+
+# Vim junk
+.swp
+.swo
