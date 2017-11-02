@@ -102,10 +102,10 @@ ENV/
 
 
 # Data
-.csv
-.xlsx
-.xls
-.tsv
+*.csv
+*.xlsx
+*.xls
+*.tsv
 
 # Vim junk
 .swp
