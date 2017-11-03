@@ -108,5 +108,5 @@ ENV/
 *.tsv
 
 # Vim junk
-.swp
-.swo
+*.swp
+*.swo
