@@ -109,7 +109,6 @@ def psa_nvca_viochg_age(row):
     """Current violent offense & 20 years or younger
     If TOP-CHG = crime of violence and AGE is less than or equal to 20, then +1; else 0
     """
-    print row['TOP_CHG']
     return 1 if ((row['TOP_CHG'] in VIOLENT_CRIMES) & (row['AGE'] <= 20)) else 0
 
 def psa_nvca_pending(row):
@@ -167,4 +166,9 @@ CLIENTS_CSV = pd.read_csv('nycds.csv',
                           nrows=46)
 CLIENTS = CLIENTS_CSV.transpose()
 
+CLIENTS['fta_raw_score'] = CLIENTS.apply(lambda row: calculate_fta_raw_score(row), axis=1)
+CLIENTS['nca_raw_score'] = CLIENTS.apply(lambda row: calculate_nca_raw_score(row), axis=1)
+CLIENTS['nvca_raw_score'] = CLIENTS.apply(lambda row: calculate_nvca_raw_score(row), axis=1)
+
+SCORES = pd.DataFrame(index=CLIENTS.index)
 # clients = CSV.pivot()

@@ -1,23 +1,29 @@
-def ny_sr_age(row):
+"""Calculate NY Supervised Release Score"""
+
+def ny_sr_age(age):
     """Age
     """
-    #If AGE = 16-19, then +6;
-    #if AGE = 20-29, then +1;
-    #if AGE = 30-39, then -3;
-    #if AGE is greater than or equal to 40, then -4.
+    if (age >= 16 and age <= 19):
+        return 6
+    elif (age >= 20 and age <= 29):
+        return 1
+    elif (age >= 30 and age <= 39):
+        return -3
+    elif age >= 40:
+        return -4
 
 def ny_sr_pending(row):
     """Open Cases
     """
     #If OPEN-MISD-STATUS = "Open - Pre-Plea" or if OPEN-FEL-STATUS = "Open - Pre-Plea", then +1;
     #else -1
-    return row
+    return 1 if ((row['OPEN_MISD_STATUS'] == 'Open - Pre-Plea')
+                 or (row['OPEN_FEL_STATUS'] == 'Open - Pre-Plea')) else 0
 
-def ny_sr_first_arrest(row):
+def ny_sr_first_arrest(x):
     """First Arrest
     """
-    #If FIRST-ARREST = "Yes", then -3; else +3
-    return row
+    return -3 if x == 'Yes' else 3
 
 def ny_sr_war(row):
     """Warrant in last 4 years
@@ -52,5 +58,18 @@ def ny_sr_drug_conv(row):
 def ny_sr_fulltime_act(row):
     """Fulltime Activity
     """
-    #If FULLTIME-ACTIVITY = "Yes", then -2; else +2
-    return row
+    return -2 if row['FULLTIME'] == 'Yes' else 2
+
+def calculate_sr_score(row):
+    """Calculate the final SR score for any given client
+    """
+    score = 0
+    score = score + ny_sr_age(row['AGE'])
+    score = score + ny_sr_pending(row)
+    score = score + ny_sr_first_arrest(row['FIRST_ARREST'])
+    score = score + ny_sr_war(row)
+    score = score + ny_sr_misd_conv(row)
+    score = score + ny_sr_fel_conv(row)
+    score = score + ny_sr_drug_conv(row)
+    score = score + ny_sr_fulltime_act(row)
+    return score
