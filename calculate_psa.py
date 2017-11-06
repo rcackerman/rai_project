@@ -12,16 +12,16 @@ with open('crime_of_violence.txt') as f:
 def prior_convictions(row):
     """Check if client has any prior convictions.
     """
-    return True if (pd.notnull(row['CONV_MISD_DT']) |
-                    pd.notnull(row['CONV_FEL_DT'])) else False
+    return True if (pd.notnull(row['conv_misd_dt']) |
+                    pd.notnull(row['conv_fel_dt'])) else False
 
 
 def number_warrants(row):
     """Find the number of recent warrants.
     """
-    if pd.notnull(row['WAR_PREDISPO_RECENT_DT_2ND']):
+    if pd.notnull(row['war_predispo_recent_dt_2nd']):
         return 2
-    if pd.notnull(row['WAR_PREDISPO_RECENT_DT_1ST']):
+    if pd.notnull(row['war_predispo_recent_dt_1st']):
         return 1
     else:
         return 0
@@ -51,7 +51,7 @@ def psa_fta_old_war(row):
     """Prior failure to appear pretrial older than 2 years
     If WAR-PREDISPO-2Y-DT contains data, then +1; else 0
     """
-    return 1 if pd.notnull(row['WAR_PREDISPO_2Y_DT']) else 0
+    return 1 if pd.notnull(row['war_predispo_2y_dt']) else 0
 
 
 def psa_nca_age(age):
@@ -88,9 +88,9 @@ def psa_vio_conv(row):
     if CONV-VIO-DT-1ST contains data, but CONV-VIO-DT-3RD is empty, then +1;
     else 0
     """
-    if pd.notnull(row['CONV_VIO_DT_3RD']):
+    if pd.notnull(row['conv_vio_dt_3rd']):
         return 2
-    if pd.notnull(row['CONV_VIO_DT_1ST']):
+    if pd.notnull(row['conv_vio_dt_1st']):
         return 1
     else:
         return 0
@@ -107,7 +107,7 @@ def psa_nvca_vio_chg(row):
     """Current violent offense
     If TOP-CHG = crime of violence, then +2; else 0
     """
-    return 2 if (row['TOP_CHG'] in VIOLENT_CRIMES) else 0
+    return 2 if (row['top_chg'] in VIOLENT_CRIMES) else 0
 
 
 def psa_nvca_viochg_age(row):
@@ -115,8 +115,8 @@ def psa_nvca_viochg_age(row):
     If TOP-CHG = crime of violence
     and AGE is less than or equal to 20, then +1; else 0
     """
-    return 1 if ((row['TOP_CHG'] in VIOLENT_CRIMES)
-                 & (row['AGE'] <= 20)) else 0
+    return 1 if ((row['top_chg'] in VIOLENT_CRIMES)
+                 & (row['age'] <= 20)) else 0
 
 
 def psa_nvca_pending(row):
@@ -149,13 +149,13 @@ def calculate_nca_raw_score(client_row):
     """Calculate New Criminal Activity Risk score for any given client.
     """
     score = 0
-    score = score + psa_nca_age(client_row['AGE'])
+    score = score + psa_nca_age(client_row['age'])
     score = score + psa_nca_pending(client_row)
-    score = score + psa_nca_misd_conv(client_row['CONV_MISD_DT'])
-    score = score + psa_nca_fel_conv(client_row['CONV_FEL_DT'])
+    score = score + psa_nca_misd_conv(client_row['conv_misd_dt'])
+    score = score + psa_nca_fel_conv(client_row['conv_fel_dt'])
     score = score + psa_vio_conv(client_row)
     score = score + number_warrants(client_row)
-    score = score + psa_nca_prior_sentence(client_row['PRIOR_SENTENCE'])
+    score = score + psa_nca_prior_sentence(client_row['prior_sentence'])
     return score
 
 
@@ -179,7 +179,7 @@ PSA_CLIENTS_CSV = pd.read_csv('nycds.csv',
 PSA_CLIENTS = PSA_CLIENTS_CSV.transpose()
 
 # Data munging
-PSA_CLIENTS['AGE'] = pd.to_numeric(PSA_CLIENTS['AGE'])
+PSA_CLIENTS['age'] = pd.to_numeric(PSA_CLIENTS['age'])
 
 
 PSA_CLIENTS['fta_raw_score'] = PSA_CLIENTS.apply(

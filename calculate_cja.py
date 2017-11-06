@@ -68,23 +68,3 @@ def calculate_cja_score_alternate(client):
     # check for open cases
     score = score + utils.ny_tools_pending(client)
     return score
-
-
-CJA_CLIENTS_CSV = pd.read_csv('nycds.csv',
-                              index_col=0,
-                              true_values=['Yes'],
-                              false_values=['No'],
-                              nrows=46)
-CJA_CLIENTS = CJA_CLIENTS_CSV.transpose()
-
-# Data munging
-CJA_CLIENTS['age'] = pd.to_numeric(CJA_CLIENTS['age'])
-
-
-CJA_CLIENTS['cja_score'] = CJA_CLIENTS.apply(
-                            lambda row: calculate_cja_score(row), axis=1)
-CJA_CLIENTS['alt_cja_score'] = CJA_CLIENTS.apply(
-                                lambda row: calculate_cja_score_alternate(row),
-                                axis=1)
-
-CJA_SCORES = CJA_CLIENTS[['cja_score', 'alt_cja_score']].copy()
