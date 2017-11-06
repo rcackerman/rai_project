@@ -17,20 +17,20 @@ def ny_tools_pending(row):
     # If OPEN-MISD-STATUS = "Open - Pre-Plea" or
     # if OPEN-FEL-STATUS = "Open - Pre-Plea", then +1;
     # else -1
-    return True if ((row['OPEN_MISD_STATUS'] == 'Open - Pre-Plea')
-                    | (row['OPEN_FEL_STATUS'] == 'Open - Pre-Plea')) else 0
+    return True if ((row['open_misd_status'] == 'Open - Pre-Plea')
+                    | (row['open_fel_status'] == 'Open - Pre-Plea')) else 0
 
 
 def psa_pending(row, count_acd=False):
     """Generalized check for pending charge at the time of offense
     """
     if not count_acd:
-        return True if (pd.notnull(row['OPEN_MISD_STATUS']) |
-                        pd.notnull(row['OPEN_FEL_STATUS'])) else False
+        return True if (pd.notnull(row['open_misd_status']) |
+                        pd.notnull(row['open_fel_status'])) else False
     else:
-        return True if (pd.notnull(row['OPEN_MISD_STATUS']) |
-                        pd.notnull(row['OPEN_FEL_STATUS']) |
-                        pd.notnull(row['OPEN_ACD'])) else False
+        return True if (pd.notnull(row['open_misd_status']) |
+                        pd.notnull(row['open_fel_status']) |
+                        pd.notnull(row['open_acd'])) else False
 
 
 def point_item(item, answer_scores={}, else_score=0):
