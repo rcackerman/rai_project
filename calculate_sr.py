@@ -98,3 +98,44 @@ def calculate_sr_score(row):
     return score
 
 
+SR_CLIENTS = pd.read_csv('nycds.csv',
+                         index_col=0,
+                         true_values=['Yes'],
+                         false_values=['No'],
+                         nrows=46).transpose()
+
+# Data munging
+
+# Ages get changed to numeric
+SR_CLIENTS['age'] = pd.to_numeric(SR_CLIENTS['age'])
+
+# All dates get changed to a pandas datetime object, for easier comparisons
+SR_CLIENTS['arraign_date'] = pd.to_datetime(SR_CLIENTS['arraign_date'])
+SR_CLIENTS['war_predispo_recent_dt_1st'] = pd.to_datetime(
+        SR_CLIENTS['war_predispo_recent_dt_1st'])
+SR_CLIENTS['war_predispo_recent_dt_2nd'] = pd.to_datetime(
+        SR_CLIENTS['war_predispo_recent_dt_2nd'])
+SR_CLIENTS['war_predispo_2y_dt'] = pd.to_datetime(
+        SR_CLIENTS['war_predispo_2y_dt'])
+SR_CLIENTS['war_postdispo_dt'] = pd.to_datetime(SR_CLIENTS['war_postdispo_dt'])
+SR_CLIENTS['open_misd_plea_dt'] = pd.to_datetime(
+        SR_CLIENTS['open_misd_plea_dt'])
+SR_CLIENTS['open_fel_plea_dt'] = pd.to_datetime(SR_CLIENTS['open_fel_plea_dt'])
+SR_CLIENTS['open_drug_plea_dt'] = pd.to_datetime(
+        SR_CLIENTS['open_drug_plea_dt'])
+SR_CLIENTS['conv_misd_dt'] = pd.to_datetime(SR_CLIENTS['conv_misd_dt'])
+SR_CLIENTS['conv_fel_dt'] = pd.to_datetime(SR_CLIENTS['conv_fel_dt'])
+SR_CLIENTS['conv_drug_dt'] = pd.to_datetime(SR_CLIENTS['conv_drug_dt'])
+SR_CLIENTS['conv_vio_dt_1st'] = pd.to_datetime(SR_CLIENTS['conv_vio_dt_1st'])
+SR_CLIENTS['conv_vio_dt_2nd'] = pd.to_datetime(SR_CLIENTS['conv_vio_dt_2nd'])
+SR_CLIENTS['conv_vio_dt_3rd'] = pd.to_datetime(SR_CLIENTS['conv_vio_dt_3rd'])
+
+# All strings to strings, I guess?
+SR_CLIENTS['open_misd_plea_chg'] = SR_CLIENTS['open_misd_plea_chg'].astype('str')
+SR_CLIENTS['open_fel_plea_chg'] = SR_CLIENTS['open_fel_plea_chg'].astype('str')
+
+
+SR_CLIENTS['sr_score'] = SR_CLIENTS.apply(
+        lambda row: calculate_sr_score(row), axis=1)
+
+SR_SCORES = SR_CLIENTS[['sr_score']].copy()
