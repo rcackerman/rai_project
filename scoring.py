@@ -112,7 +112,7 @@ SCORES = CLIENTS[['top_chg', 'dv', 'age', 'client_race', 'client_ethnicity',
 # Calculate Supervised Release
 # Check if clients are even eligible for supervised release
 # Any violent felony or DV charge are not eligible
-SCORES['sr_ineligible'] = SCORES.apply(lambda row: sr_eligibility(row), axis=1)
+SCORES['sr_chg_ineligible'] = SCORES.apply(lambda row: sr_eligibility(row), axis=1)
 # Calculate supervised release
 SCORES['sr_risk'] = SCORES['sr_score'].apply(lambda x: sr_risk_level(x))
 
