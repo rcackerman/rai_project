@@ -1,3 +1,5 @@
+# pylint: disable=W0108
+
 """Determine final scores for each client,
 using the different risk tools
 """
@@ -16,6 +18,9 @@ NCA_ADJUSTED_SCORES = {0: 1, 1: 2, 2: 2, 3: 3,
                        12: 6, 13: 6}
 
 def sr_risk_level(x):
+    """Get risk level for supervised release,
+    based on raw score
+    """
     if x in list(range(-16, -9)):
         return 'Low'
     elif x in list(range(-9, -4)):
@@ -28,8 +33,18 @@ def sr_risk_level(x):
         return 'High'
 
 
+def sr_eligibility(row):
+    """Check basic charge eligibility for SR,
+    which is any non-violent felony or non-DV misdemeanor
+    """
+    return True if (row['top_chg'][-2:] == 'VF'
+                    or row['dv'] == 'TRUE') else False
+
 
 def cja_risk_level(x):
+    """Get risk level for CJA,
+    based on raw score
+    """
     if x in list(range(-13, 3)):
         return 'Not recommended for ROR'
     elif x in list(range(3, 7)):
@@ -39,8 +54,8 @@ def cja_risk_level(x):
 
 CLIENTS = pd.read_csv('nycds.csv',
                       index_col=0,
-                      true_values=['Yes'],
-                      false_values=['No'],
+                      true_values=['Yes', 'TRUE'],
+                      false_values=['No', 'FALSE'],
                       nrows=48).transpose()
 
 # Data munging
@@ -87,14 +102,26 @@ CLIENTS['cja_score'] = CLIENTS.apply(
 CLIENTS['alt_cja_score'] = CLIENTS.apply(
     lambda row: calculate_cja.calculate_cja_score_alternate(row), axis=1)
 
-SCORES = CLIENTS[['top_chg', 'age', 'client_race', 'client_ethnicity',
+SCORES = CLIENTS[['top_chg', 'dv', 'age', 'client_race', 'client_ethnicity',
                   'client_gender', 'sr_score', 'cja_score',
                   'fta_raw_score', 'nca_raw_score', 'nvca_raw_score',
                   'outcome_bail', 'outcome_bond', 'outcome_custody'
-                ]].copy()
+                 ]].copy()
 
+##
+# Calculate Supervised Release
+# Check if clients are even eligible for supervised release
+# Any violent felony or DV charge are not eligible
+SCORES['sr_ineligible'] = SCORES.apply(lambda row: sr_eligibility(row), axis=1)
+# Calculate supervised release
 SCORES['sr_risk'] = SCORES['sr_score'].apply(lambda x: sr_risk_level(x))
+
+##
+# Calculate CJA score
 SCORES['cja_risk'] = SCORES['cja_score'].apply(lambda x: cja_risk_level(x))
+
+##
+# Calculate PSA scores
 SCORES['fta_score'] = SCORES['fta_raw_score'].apply(lambda x: FTA_ADJUSTED_SCORES[x])
 SCORES['nca_score'] = SCORES['nca_raw_score'].apply(lambda x: NCA_ADJUSTED_SCORES[x])
 SCORES['nvca_flag'] = SCORES['nvca_raw_score'].apply(lambda x: True if x > 3 else False)
