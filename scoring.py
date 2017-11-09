@@ -14,10 +14,6 @@ NCA_ADJUSTED_SCORES = {0: 1, 1: 2, 2: 2, 3: 3,
                        4: 3, 5: 4, 6: 4, 7: 5,
                        8: 5, 9: 6, 10: 6, 11: 6,
                        12: 6, 13: 6}
-NVCA_FLAG = [(0, False), (1, False), (2, False),
-             (3, False), (4, True), (5, True),
-             (6, True), (7, True)]
-
 
 def sr_risk_level(x):
     if x in list(range(-16, -9)):
@@ -30,7 +26,8 @@ def sr_risk_level(x):
         return 'Medium High'
     elif x in list(range(5, 19)):
         return 'High'
-  
+
+
 
 def cja_risk_level(x):
     if x in list(range(-13, 3)):
@@ -100,3 +97,4 @@ SCORES['sr_risk'] = SCORES['sr_score'].apply(lambda x: sr_risk_level(x))
 SCORES['cja_risk'] = SCORES['cja_score'].apply(lambda x: cja_risk_level(x))
 SCORES['fta_score'] = SCORES['fta_raw_score'].apply(lambda x: FTA_ADJUSTED_SCORES[x])
 SCORES['nca_score'] = SCORES['nca_raw_score'].apply(lambda x: NCA_ADJUSTED_SCORES[x])
+SCORES['nvca_flag'] = SCORES['nvca_raw_score'].apply(lambda x: True if x > 3 else False)
