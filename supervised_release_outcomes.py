@@ -14,6 +14,21 @@ SR = SCORES[['top_chg', 'dv', 'age', 'client_race', 'client_ethnicity', 'client_
 SR['ineligible'] = SR.apply(lambda r: True if r.sr_risk == 'High' or r.sr_chg_ineligible else False,
                             axis=1)
 
+# Looking at only the risk assessment levels
+SR.loc[(SR.sr_risk == 'High')
+       & SR.outcome_custody.isin(['REMAND', 'BAIL SET']),
+       'sr_rai_vs_real'] = 'Same'
+SR.loc[(SR.sr_risk == 'High')
+       & SR.outcome_custody.isin(['SUP REL', 'ROR']),
+       'sr_rai_vs_real'] = 'Worse'
+SR.loc[(SR.sr_risk != 'High')
+       & SR.outcome_custody.isin(['REMAND', 'BAIL SET']),
+       'sr_rai_vs_real'] = 'Better'
+SR.loc[(SR.sr_risk != 'High')
+       & SR.outcome_custody.isin(['SUP REL', 'ROR']),
+       'sr_rai_vs_real'] = 'Same'
+
+# Looking at supervised release as it is today
 SR.loc[(SR.ineligible)
        & SR.outcome_custody.isin(['REMAND', 'BAIL SET']),
        'sr_vs_real'] = 'Same'
@@ -27,7 +42,12 @@ SR.loc[(~SR.ineligible)
        & SR.outcome_custody.isin(['SUP REL', 'ROR']),
        'sr_vs_real'] = 'Same'
 
-SR.sr_vs_real.value_counts()
+counts_table = pd.DataFrame({'sr_vs_real': SR.sr_vs_real.value_counts(),
+                             'sr_rai_vs_real': SR.sr_rai_vs_real.value_counts()})
+counts_table['rai_pct'] = counts_table['sr_rai_vs_real'].apply(
+    lambda x: (x/counts_table['sr_rai_vs_real'].sum())*100)
+counts_table['sr_pct'] = counts_table['sr_vs_real'].apply(
+    lambda x: (x/counts_table['sr_rai_vs_real'].sum())*100)
 
 # Plotting
 fig, ax = plt.subplots(1, 1)

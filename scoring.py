@@ -82,6 +82,7 @@ CLIENTS['conv_vio_dt_3rd'] = pd.to_datetime(CLIENTS['conv_vio_dt_3rd'])
 # All strings to strings, I guess?
 CLIENTS['open_misd_plea_chg'] = CLIENTS['open_misd_plea_chg'].astype('str')
 CLIENTS['open_fel_plea_chg'] = CLIENTS['open_fel_plea_chg'].astype('str')
+CLIENTS['open_drug_plea_chg'] = CLIENTS['open_drug_plea_chg'].astype('str')
 
 
 ##
