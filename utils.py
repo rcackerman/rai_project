@@ -14,11 +14,16 @@ def ny_tools_pending(row):
     """Checks for open cases according to CJA and Supervised Release
     tools.
     """
+    # Supervised release:
     # If OPEN-MISD-STATUS = "Open - Pre-Plea" or
     # if OPEN-FEL-STATUS = "Open - Pre-Plea", then +1;
     # else -1
+    # CJA:
+    # If OPEN-MISD-STATUS = "Open - Pre-Plea" or
+    # if OPEN-FEL-STATUS = "Open - Pre-Plea", then -1;
+    # else +1
     return True if ((row['open_misd_status'] == 'Open - Pre-Plea')
-                    | (row['open_fel_status'] == 'Open - Pre-Plea')) else 0
+                    | (row['open_fel_status'] == 'Open - Pre-Plea')) else False
 
 
 def psa_pending(row, count_acd=False):

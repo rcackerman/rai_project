@@ -29,9 +29,9 @@ def ny_sr_war(row):
     of date of arraignment, then +1; else -1
     """
     day_of_reckoning = row['arraign_date'] - pd.Timedelta(4, 'Y')
-    return 1 if ((row['war_predispo_recent_dt_1st'] > day_of_reckoning)
-                 | (row['war_predispo_2y_dt'] > day_of_reckoning)
-                 | (row['war_postdispo_dt'] > day_of_reckoning)) else -1
+    return 1 if ((row['war_predispo_recent_dt_1st'] >= day_of_reckoning)
+                 | (row['war_predispo_2y_dt'] >= day_of_reckoning)
+                 | (row['war_postdispo_dt'] >= day_of_reckoning)) else -1
 
 
 def ny_sr_misd_conv(row):
@@ -47,9 +47,18 @@ def ny_sr_misd_conv(row):
     else -2
     """
     day_of_reckoning = row['arraign_date'] - pd.Timedelta(1, 'Y')
-    return 2 if ((row['conv_misd_dt'] > day_of_reckoning)
-                 | (row['open_misd_plea_dt'] > day_of_reckoning)
-                 | (row['open_fel_plea_dt'] > day_of_reckoning)) else -2
+    if (row['conv_misd_dt'] >= day_of_reckoning):
+        return 2
+    elif ((row['open_misd_plea_dt'] >= day_of_reckoning)
+          & (('Misdemeanor' in row['open_misd_plea_chg'])
+             | (row['open_misd_plea_chg'][-1] == 'M'))):
+        return 2
+    elif ((row['open_fel_plea_dt'] >= day_of_reckoning)
+          & (('Misdemeanor' in row['open_fel_plea_chg'])
+             | (row['open_fel_plea_chg'][-1] == 'M'))):
+        return 2
+    else:
+        return -2
 
 
 def ny_sr_fel_conv(row):
@@ -62,9 +71,19 @@ def ny_sr_fel_conv(row):
     # is within 9 years of arraignment, then +1;
     # else -1
     day_of_reckoning = row['arraign_date'] - pd.Timedelta(9, 'Y')
-    return 2 if ((row['conv_fel_dt'] > day_of_reckoning)
-                 | (row['open_misd_plea_dt'] > day_of_reckoning)
-                 | (row['open_fel_plea_dt'] > day_of_reckoning)) else -2
+
+    if (row['conv_misd_dt'] >= day_of_reckoning):
+        return 2
+    elif ((row['open_misd_plea_dt'] >= day_of_reckoning)
+          & (('Felony' in row['open_misd_plea_chg'])
+              | (row['open_misd_plea_chg'][-1] == 'M'))):
+        return 2
+    elif ((row['open_fel_plea_dt'] >= day_of_reckoning)
+          & (('Felony' in row['open_fel_plea_chg'])
+              | (row['open_fel_plea_chg'][-1] == 'M'))):
+        return 2
+    else:
+        return -2
 
 
 def ny_sr_drug_conv(row):
@@ -73,8 +92,8 @@ def ny_sr_drug_conv(row):
     # If the date of CONV-DRUG-DT is within 9 years of arraignment,
     # then +2; else -2
     day_of_reckoning = row['arraign_date'] - pd.Timedelta(9, 'Y')
-    return 2 if ((row['conv_drug_dt'] > day_of_reckoning)
-                 | (row['open_drug_plea_dt'] > day_of_reckoning)) else -2
+    return 2 if ((row['conv_drug_dt'] >= day_of_reckoning)
+                 | (row['open_drug_plea_dt'] >= day_of_reckoning)) else -2
 
 
 def ny_sr_fulltime_act(row):
@@ -88,8 +107,8 @@ def calculate_sr_score(row):
     """
     score = 0
     score = score + ny_sr_age(row['age'])
-    score = score + utils.ny_tools_pending(row)
-    score = score + ny_sr_first_arrest(row['first_arrest'])
+    score = score + (1 if utils.ny_tools_pending(row) else -1)
+    score = score + (-3 if row['first_arrest'] == 'Yes' else 3)
     score = score + ny_sr_war(row)
     score = score + ny_sr_misd_conv(row)
     score = score + ny_sr_fel_conv(row)

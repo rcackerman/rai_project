@@ -40,8 +40,8 @@ def calculate_cja_score(client):
     score = score + (1 if client['expect_at_arr'] == 'Yes' else -1)
     # check warrants
     score = score + cja_prior_warrant(client)
-    # Check for open cases
-    score = score + utils.ny_tools_pending(client)
+    # -1 for open cases, 1 if none
+    score = score + (-1 if utils.ny_tools_pending(client) else 1)
     return score
 
 
@@ -65,6 +65,6 @@ def calculate_cja_score_alternate(client):
     score = score + (1 if client['expect_at_arr'] == 'Yes' else -1)
     # check warrants
     score = score + cja_prior_warrant(client)
-    # check for open cases
-    score = score + utils.ny_tools_pending(client)
+    # -1 for open cases, 1 if none
+    score = score + (-1 if utils.ny_tools_pending(client) else 1)
     return score
